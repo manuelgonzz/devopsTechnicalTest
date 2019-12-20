@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 (0c01309)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: certbot
+  name: certbot
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: certbot
+    spec:
+      containers:
+      - args:
+        - certonly
+        - --webroot
+        - --webroot-path=/var/www/html
+        - --email
+        - root@retevisa-devops.com
+        - --agree-tos
+        - --no-eff-email
+        - --force-renewal
+        - -d
+        - retevisa-devops.com
+        - -d
+        - www.retevisa-devops.com
+        image: certbot/certbot
+        name: certbot
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/letsencrypt
+          name: certbot-etc
+        - mountPath: /var/www/html
+          name: wordpress
+      restartPolicy: Always
+      volumes:
+      - name: certbot-etc
+        persistentVolumeClaim:
+          claimName: certbot-etc
+      - name: wordpress
+        persistentVolumeClaim:
+          claimName: wordpress
+status: {}
